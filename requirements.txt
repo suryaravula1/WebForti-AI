@@ -1,0 +1,10 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pymongo[srv]==4.10.1
+dnspython==2.8.0
+redis==5.2.1
+psycopg[binary]==3.3.4
+docker==7.1.0
+sentence-transformers==5.4.1
+pytest==8.3.4
+httpx==0.28.1
