@@ -1,0 +1,117 @@
+services:
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./infrastructure/mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: webforti
+      POSTGRES_PASSWORD: webforti
+      POSTGRES_DB: webforti
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  gateway:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.service
+    command: uvicorn services.gateway.main:app --host 0.0.0.0 --port 8000
+    env_file: .env.example
+    environment:
+      WEBFORTI_PIPELINE_MODE: http
+      MONGO_URI: mongodb://mongo:27017
+      POSTGRES_DSN: postgresql://webforti:webforti@postgres:5432/webforti
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+      - postgres
+      - redis
+
+  data_collector:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.service
+    command: uvicorn services.data_collector.main:app --host 0.0.0.0 --port 8001
+    env_file: .env.example
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+
+  rag_service:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.service
+    command: uvicorn services.rag_service.main:app --host 0.0.0.0 --port 8002
+    env_file: .env.example
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+    ports:
+      - "8002:8002"
+    depends_on:
+      - mongo
+
+  llm_core:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.service
+    command: uvicorn services.llm_core.main:app --host 0.0.0.0 --port 8003
+    env_file: .env.example
+    ports:
+      - "8003:8003"
+
+  agents:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.service
+    command: uvicorn services.agents.main:app --host 0.0.0.0 --port 8004
+    env_file: .env.example
+    ports:
+      - "8004:8004"
+
+  orchestrator:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.service
+    command: uvicorn services.orchestrator.main:app --host 0.0.0.0 --port 8005
+    env_file: .env.example
+    ports:
+      - "8005:8005"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.service
+    command: python -m services.worker.main
+    env_file: .env.example
+    environment:
+      WEBFORTI_QUEUE_BACKEND: redis
+      WEBFORTI_PERSISTENCE_BACKEND: postgres
+      MONGO_URI: mongodb://mongo:27017
+      POSTGRES_DSN: postgresql://webforti:webforti@postgres:5432/webforti
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - mongo
+      - postgres
+      - redis
+
+volumes:
+  mongo_data:
+  postgres_data:
