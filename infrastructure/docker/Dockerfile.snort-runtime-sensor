@@ -1,0 +1,16 @@
+FROM openeuler/snort3:3.9.5.0-oe2403sp1
+
+ENV LD_LIBRARY_PATH=/usr/local/lib
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /sensor
+RUN command -v python3 >/dev/null 2>&1 \
+    || (command -v dnf >/dev/null 2>&1 && dnf install -y python3 && dnf clean all) \
+    || (command -v yum >/dev/null 2>&1 && yum install -y python3 && yum clean all)
+COPY infrastructure/docker/snort_sensor_proxy.py /sensor/snort_sensor_proxy.py
+COPY infrastructure/docker/snort_inline_bridge.py /sensor/snort_inline_bridge.py
+COPY infrastructure/docker/snort_runtime_entrypoint.sh /sensor/snort_runtime_entrypoint.sh
+
+EXPOSE 8080
+CMD ["python3", "/sensor/snort_inline_bridge.py"]
