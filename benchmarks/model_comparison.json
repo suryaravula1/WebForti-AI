@@ -1,0 +1,112 @@
+{
+  "label": "experimentation",
+  "purpose": "model comparison scaffold for WebForti. These values are illustrative and must not be cited as measured benchmark results.",
+  "fixture_count": 20,
+  "topology": "Kali attacker -> Snort inline IPS bridge -> Ubuntu target",
+  "metrics": {
+    "pass_rate": "Jobs that produced schema-valid artifacts and passed Docker/Snort verification.",
+    "fail_rate": "Jobs that generated artifacts but failed validation or verification.",
+    "deny_rate": "Jobs where the model refused or would not provide a usable generation plan.",
+    "malformed_json_rate": "Jobs where the model response could not be parsed into the required JSON schema."
+  },
+  "rows": [
+    {
+      "model": "Qwen 3.6 35B A3B via OpenRouter",
+      "attempted": 20,
+      "passed": 14,
+      "failed": 5,
+      "denied": 0,
+      "malformed_json": 1,
+      "pass_rate": 0.7,
+      "fail_rate": 0.25,
+      "deny_rate": 0.0,
+      "malformed_json_rate": 0.05,
+      "synthetic_avg_seconds": 25.1,
+      "notes": "Primary demo model; low refusal rate with moderate artifact-verification misses."
+    },
+    {
+      "model": "OpenAI GPT-5.4",
+      "attempted": 20,
+      "passed": 16,
+      "failed": 1,
+      "denied": 3,
+      "malformed_json": 0,
+      "pass_rate": 0.8,
+      "fail_rate": 0.05,
+      "deny_rate": 0.15,
+      "malformed_json_rate": 0.0,
+      "synthetic_avg_seconds": 18.9,
+      "notes": "High schema quality and artifact accuracy, with a higher refusal rate on exploit-adjacent prompts."
+    },
+    {
+      "model": "Claude 4.6",
+      "attempted": 20,
+      "passed": 15,
+      "failed": 1,
+      "denied": 4,
+      "malformed_json": 0,
+      "pass_rate": 0.75,
+      "fail_rate": 0.05,
+      "deny_rate": 0.2,
+      "malformed_json_rate": 0.0,
+      "synthetic_avg_seconds": 20.7,
+      "notes": "Strong reasoning and clean plans when it responds, but highest synthetic refusal rate."
+    },
+    {
+      "model": "Kimi K2",
+      "attempted": 20,
+      "passed": 16,
+      "failed": 1,
+      "denied": 3,
+      "malformed_json": 0,
+      "pass_rate": 0.8,
+      "fail_rate": 0.05,
+      "deny_rate": 0.15,
+      "malformed_json_rate": 0.0,
+      "synthetic_avg_seconds": 22.4,
+      "notes": "Strong planning coverage, higher denial rate than local/open baselines."
+    },
+    {
+      "model": "Local Llama 3.1 70B",
+      "attempted": 20,
+      "passed": 4,
+      "failed": 13,
+      "denied": 0,
+      "malformed_json": 3,
+      "pass_rate": 0.2,
+      "fail_rate": 0.65,
+      "deny_rate": 0.0,
+      "malformed_json_rate": 0.15,
+      "synthetic_avg_seconds": 54.0,
+      "notes": "Offline/privacy baseline; lower refusal but weaker schema reliability."
+    },
+    {
+      "model": "Gemini 3.5 Pro",
+      "attempted": 20,
+      "passed": 16,
+      "failed": 1,
+      "denied": 3,
+      "malformed_json": 0,
+      "pass_rate": 0.8,
+      "fail_rate": 0.05,
+      "deny_rate": 0.15,
+      "malformed_json_rate": 0.0,
+      "synthetic_avg_seconds": 19.8,
+      "notes": "Strong structured output and high verification pass rate, with non-trivial safety refusal."
+    },
+    {
+      "model": "DeepSeek R1/V3",
+      "attempted": 20,
+      "passed": 12,
+      "failed": 5,
+      "denied": 0,
+      "malformed_json": 3,
+      "pass_rate": 0.6,
+      "fail_rate": 0.25,
+      "deny_rate": 0.0,
+      "malformed_json_rate": 0.15,
+      "synthetic_avg_seconds": 28.6,
+      "notes": "Low synthetic refusal rate, but occasional malformed plan or weaker artifact specificity."
+    }
+  ]
+}
