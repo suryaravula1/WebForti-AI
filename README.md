@@ -9,15 +9,16 @@ These commands start the local final-demo path: PostgreSQL, Redis queue, FastAPI
 ### 1. First-Time Setup
 
 ```bash
-cd /Users/sri/Desktop/silly_experiments/final
+cd /path/to/WebForti
+export WEBFORTI_ROOT="$PWD"
 
 python3 -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
 .venv/bin/python -m pip install -r requirements.txt
 
-cd frontend
+cd "$WEBFORTI_ROOT/frontend"
 npm install
-cd ..
+cd "$WEBFORTI_ROOT"
 
 test -f .env || cp .env.example .env
 ```
@@ -68,21 +69,21 @@ POSTGRES_DSN=postgresql://webforti:webforti@localhost:5432/webforti \
 ### 4. Start Backend Gateway
 
 ```bash
-tmux new-session -d -s webforti-gateway 'cd /Users/sri/Desktop/silly_experiments/final && set -a && source .env && set +a && PYTHONPATH=.:backend/shared WEBFORTI_QUEUE_BACKEND=redis WEBFORTI_PERSISTENCE_BACKEND=postgres WEBFORTI_VERIFICATION_MODE=docker POSTGRES_DSN=postgresql://webforti:webforti@localhost:5432/webforti REDIS_URL=redis://localhost:6379/0 .venv/bin/uvicorn services.gateway.main:app --host 127.0.0.1 --port 8000'
+tmux new-session -d -s webforti-gateway "cd \"$WEBFORTI_ROOT\" && set -a && source .env && set +a && PYTHONPATH=.:backend/shared WEBFORTI_QUEUE_BACKEND=redis WEBFORTI_PERSISTENCE_BACKEND=postgres WEBFORTI_VERIFICATION_MODE=docker POSTGRES_DSN=postgresql://webforti:webforti@localhost:5432/webforti REDIS_URL=redis://localhost:6379/0 .venv/bin/uvicorn services.gateway.main:app --host 127.0.0.1 --port 8000"
 ```
 
 ### 5. Start Five Workers
 
 ```bash
 for i in 1 2 3 4 5; do
-  tmux new-session -d -s "webforti-worker-$i" "cd /Users/sri/Desktop/silly_experiments/final && set -a && source .env && set +a && PYTHONPATH=.:backend/shared WEBFORTI_QUEUE_BACKEND=redis WEBFORTI_PERSISTENCE_BACKEND=postgres WEBFORTI_VERIFICATION_MODE=docker POSTGRES_DSN=postgresql://webforti:webforti@localhost:5432/webforti REDIS_URL=redis://localhost:6379/0 .venv/bin/python -m services.worker.main"
+  tmux new-session -d -s "webforti-worker-$i" "cd \"$WEBFORTI_ROOT\" && set -a && source .env && set +a && PYTHONPATH=.:backend/shared WEBFORTI_QUEUE_BACKEND=redis WEBFORTI_PERSISTENCE_BACKEND=postgres WEBFORTI_VERIFICATION_MODE=docker POSTGRES_DSN=postgresql://webforti:webforti@localhost:5432/webforti REDIS_URL=redis://localhost:6379/0 .venv/bin/python -m services.worker.main"
 done
 ```
 
 ### 6. Start Frontend
 
 ```bash
-tmux new-session -d -s webforti-ui 'cd /Users/sri/Desktop/silly_experiments/final/frontend && npm run dev -- --host 127.0.0.1 --port 5173'
+tmux new-session -d -s webforti-ui "cd \"$WEBFORTI_ROOT/frontend\" && npm run dev -- --host 127.0.0.1 --port 5173"
 ```
 
 Open the dashboard:
